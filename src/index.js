@@ -7,7 +7,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const moreBtn = document.querySelector('.btn-load-more');
-let simpleLightBox;
+let simpleLightBox = new SimpleLightbox('.gallery a');
 
 searchForm.addEventListener('submit', onSearchForm);
 moreBtn.addEventListener('click', loadMoreBtn);
@@ -38,7 +38,7 @@ async function onSearchForm(event) {
                 );
             } else {
                 renderGallery(data.hits);
-                simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+                simpleLightBox.refresh();
                 Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
 
                 if (data.totalHits > perPage) {
@@ -46,7 +46,11 @@ async function onSearchForm(event) {
                 }
             }
         })
-        .catch(error => console.log(error));
+        .catch(error => {
+            Notify.failure(
+                'Sorry, there are no images matching your search query. Please try again.',
+            );
+        });
 }
 
 function renderGallery(images) {
