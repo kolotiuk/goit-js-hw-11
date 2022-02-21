@@ -16,7 +16,7 @@ let inputValue = '';
 let page = 1;
 const perPage = 40;
 
-function onSearchForm(event) {
+async function onSearchForm(event) {
     event.preventDefault();
     page = 1;
     inputValue = event.currentTarget.searchQuery.value.trim();
@@ -71,7 +71,7 @@ function renderGallery(images) {
     gallery.insertAdjacentHTML('beforeend', markup);
 }
 
-function loadMoreBtn() {
+async function loadMoreBtn() {
     page += 1;
     simpleLightBox.destroy();
 
