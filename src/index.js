@@ -1,23 +1,44 @@
+import './sass/_example.scss';
 import { fetchImages } from './js/services/imagesApi';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import refs from './js/services/getRefs';
 
+let perPage = 40;
+let page = 1;
+let inputValue = '';
+
 const onInput = e => {
   e.preventDefault();
-  const inputValue = e.currentTarget.searchQuery.value.trim();
+  inputValue = e.currentTarget.searchQuery.value.trim();
+  refs.gallery.innerHTML = '';
+  page = 1;
+  refs.button.classList.add('is-hidden');
 
-  fetchImages(inputValue).then(res => {
-    if (res.hits.length === 0) {
+  fetchImages(inputValue, perPage, page)
+    .then(res => {
+      if (res.hits.length === 0 || !inputValue.trim()) {
+        Notiflix.Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+      } else {
+        Notiflix.Notify.success(
+          `Hooray! We found ${res.totalHits} totalHits images.`
+        );
+        refs.button.classList.remove('is-hidden');
+        renderImages(res.hits);
+        console.log(res.hits.length);
+        if (res.totalHits < perPage) {
+          refs.button.classList.add('is-hidden');
+        }
+      }
+    })
+    .catch(error =>
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
-      );
-      return;
-    }
-    renderImages(res.hits);
-    console.log(res.hits);
-  });
+      )
+    );
 };
 refs.form.addEventListener('submit', onInput);
 
@@ -54,5 +75,20 @@ const renderImages = images => {
     )
     .join('');
 
-  refs.gallery.insertAdjacentHTML('afterbegin', markup);
+  refs.gallery.insertAdjacentHTML('beforeend', markup);
 };
+
+function loadMoreContent() {
+  page += 1;
+
+  fetchImages(inputValue, perPage, page).then(res => {
+    renderImages(res.hits);
+    if (perPage > res.hits) {
+      Notiflix.Notify.failure(
+        "We're sorry, but you've reached the end of search results."
+      );
+      refs.button.classList.add('is-hidden');
+    }
+  });
+}
+refs.button.addEventListener('click', loadMoreContent);
