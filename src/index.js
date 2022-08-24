@@ -1,10 +1,11 @@
-import './sass/_example.scss';
-import { fetchImages } from './js/services/imagesApi';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { fetchImages } from './js/services/imagesApi';
 import refs from './js/services/getRefs';
+import './sass/_example.scss';
 
+let simpleLightBox = new SimpleLightbox('.gallery a');
 let perPage = 40;
 let page = 1;
 let inputValue = '';
@@ -28,7 +29,7 @@ const onInput = e => {
         );
         refs.button.classList.remove('is-hidden');
         renderImages(res.hits);
-        console.log(res.hits.length);
+        simpleLightBox.refresh();
         if (res.totalHits < perPage) {
           refs.button.classList.add('is-hidden');
         }
@@ -46,15 +47,15 @@ const renderImages = images => {
   const markup = images
     .map(
       ({
-        largeImageURL,
         webformatURL,
+        largeImageURL,
         tags,
         likes,
         views,
         comments,
         downloads,
       }) => {
-        return `<div class="photo-card">
+        return `<a href="${largeImageURL}"><div class="photo-card">
                         <img src="${webformatURL}" alt="${tags}" loading="lazy" />
                         <div class="info">
                         <p class="info-item">
@@ -70,7 +71,7 @@ const renderImages = images => {
                             <b>Downloads</b>${downloads}
                         </p>
                         </div>
-                    </div>`;
+                    </div></a>`;
       }
     )
     .join('');
@@ -83,6 +84,7 @@ function loadMoreContent() {
 
   fetchImages(inputValue, perPage, page).then(res => {
     renderImages(res.hits);
+    simpleLightBox.refresh();
     if (perPage > res.hits) {
       Notiflix.Notify.failure(
         "We're sorry, but you've reached the end of search results."
