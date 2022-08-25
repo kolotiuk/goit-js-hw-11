@@ -10,7 +10,7 @@ let perPage = 40;
 let page = 1;
 let inputValue = '';
 
-const onInput = e => {
+const onSearch = e => {
   e.preventDefault();
   inputValue = e.currentTarget.searchQuery.value.trim();
   refs.gallery.innerHTML = '';
@@ -30,6 +30,7 @@ const onInput = e => {
         refs.button.classList.remove('is-hidden');
         renderImages(res.hits);
         simpleLightBox.refresh();
+
         if (res.totalHits < perPage) {
           refs.button.classList.add('is-hidden');
         }
@@ -41,7 +42,7 @@ const onInput = e => {
       )
     );
 };
-refs.form.addEventListener('submit', onInput);
+refs.form.addEventListener('submit', onSearch);
 
 const renderImages = images => {
   const markup = images
@@ -82,18 +83,24 @@ const renderImages = images => {
   refs.gallery.insertAdjacentHTML('beforeend', markup);
 };
 
+
+
 function loadMoreContent() {
   page += 1;
 
   fetchImages(inputValue, perPage, page).then(res => {
-    renderImages(res.hits);
-    simpleLightBox.refresh();
-    if (perPage > res.hits) {
+    const lastPage = Math.ceil(res.totalHits / perPage);
+
+    if (page >= lastPage) {
       Notiflix.Notify.failure(
         "We're sorry, but you've reached the end of search results."
       );
       refs.button.classList.add('is-hidden');
     }
+    renderImages(res.hits);
+    simpleLightBox.refresh();
   });
 }
 refs.button.addEventListener('click', loadMoreContent);
+
+
