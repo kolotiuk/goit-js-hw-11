@@ -1,8 +1,14 @@
+// Libraries
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+
+// Other js files
+import renderImages from './js/templates/imagesMarkup';
 import { fetchImages } from './js/services/imagesApi';
 import refs from './js/services/getRefs';
+
+// Sass styles
 import './sass/_example.scss';
 
 let simpleLightBox = new SimpleLightbox('.gallery a');
@@ -18,20 +24,20 @@ const onSearch = e => {
   refs.button.classList.add('is-hidden');
 
   fetchImages(inputValue, perPage, page)
-    .then(res => {
-      if (res.hits.length === 0 || !inputValue.trim()) {
+    .then(({ hits, totalHits }) => {
+      if (hits.length === 0 || !inputValue.trim()) {
         Notiflix.Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
         );
       } else {
         Notiflix.Notify.success(
-          `Hooray! We found ${res.totalHits} totalHits images.`
+          `Hooray! We found ${totalHits} totalHits images.`
         );
         refs.button.classList.remove('is-hidden');
-        renderImages(res.hits);
+        renderImages(hits);
         simpleLightBox.refresh();
 
-        if (res.totalHits < perPage) {
+        if (totalHits < perPage) {
           refs.button.classList.add('is-hidden');
         }
       }
@@ -44,52 +50,11 @@ const onSearch = e => {
 };
 refs.form.addEventListener('submit', onSearch);
 
-const renderImages = images => {
-  const markup = images
-    .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) => {
-        return `<div class="photo-card">
-        <a class="gallery-link" href="${largeImageURL}">
-          <img class="gallery-image" src="${webformatURL}" alt="${tags}" loading="lazy" />
-        </a>
-        <div class="info">
-          <p class="info-item">
-            <b>Likes</b>${likes}
-          </p>
-          <p class="info-item">
-            <b>Views</b>${views}
-          </p>
-          <p class="info-item">
-            <b>Comments</b>${comments}
-          </p>
-          <p class="info-item">
-            <b>Downloads</b>${downloads}
-          </p>
-        </div>
-      </div>
-      `;
-      }
-    )
-    .join('');
-
-  refs.gallery.insertAdjacentHTML('beforeend', markup);
-};
-
-
-
-function loadMoreContent() {
+const loadMoreContent = () => {
   page += 1;
 
-  fetchImages(inputValue, perPage, page).then(res => {
-    const lastPage = Math.ceil(res.totalHits / perPage);
+  fetchImages(inputValue, perPage, page).then(({ hits, totalHits }) => {
+    const lastPage = Math.ceil(totalHits / perPage);
 
     if (page >= lastPage) {
       Notiflix.Notify.failure(
@@ -97,10 +62,8 @@ function loadMoreContent() {
       );
       refs.button.classList.add('is-hidden');
     }
-    renderImages(res.hits);
+    renderImages(hits);
     simpleLightBox.refresh();
   });
-}
+};
 refs.button.addEventListener('click', loadMoreContent);
-
-
