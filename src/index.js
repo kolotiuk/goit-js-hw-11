@@ -21,7 +21,7 @@ const onSearch = e => {
   inputValue = e.currentTarget.searchQuery.value.trim();
   refs.gallery.innerHTML = '';
   page = 1;
-  refs.button.classList.add('is-hidden');
+  // refs.button.classList.add('is-hidden');
 
   fetchImages(inputValue, perPage, page)
     .then(({ hits, totalHits }) => {
@@ -33,12 +33,12 @@ const onSearch = e => {
         Notiflix.Notify.success(
           `Hooray! We found ${totalHits} totalHits images.`
         );
-        refs.button.classList.remove('is-hidden');
+        // refs.button.classList.remove('is-hidden');
         renderImages(hits);
         simpleLightBox.refresh();
 
         if (totalHits < perPage) {
-          refs.button.classList.add('is-hidden');
+          // refs.button.classList.add('is-hidden');
         }
       }
     })
@@ -56,14 +56,28 @@ const loadMoreContent = () => {
   fetchImages(inputValue, perPage, page).then(({ hits, totalHits }) => {
     const lastPage = Math.ceil(totalHits / perPage);
 
-    if (page >= lastPage) {
+    if (page > lastPage) {
+      // refs.button.classList.add('is-hidden');
       Notiflix.Notify.failure(
         "We're sorry, but you've reached the end of search results."
       );
-      refs.button.classList.add('is-hidden');
+      return;
     }
     renderImages(hits);
     simpleLightBox.refresh();
   });
 };
-refs.button.addEventListener('click', loadMoreContent);
+// refs.button.addEventListener('click', loadMoreContent);
+
+export default infiniteObserver = new IntersectionObserver(
+  ([entry], observer) => {
+    if (entry.isIntersecting) {
+      observer.unobserve(entry.target);
+      loadMoreContent();
+    }
+  },
+  {
+    threshold: 1,
+  }
+);
+
