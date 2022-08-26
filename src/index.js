@@ -31,7 +31,7 @@ const onSearch = async e => {
       );
       return;
     }
-    Notiflix.Notify.success(`Hooray! We found ${totalHits} totalHits images.`);
+    Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
     renderImages(hits);
     simpleLightBox.refresh();
   } catch (error) {
