@@ -31,9 +31,7 @@ const onSearch = async e => {
       );
       return;
     }
-    Notiflix.Notify.success(
-      `Hooray! We found ${totalHits} totalHits images.`
-    );
+    Notiflix.Notify.success(`Hooray! We found ${totalHits} totalHits images.`);
     renderImages(hits);
     simpleLightBox.refresh();
   } catch (error) {
@@ -57,10 +55,9 @@ const loadMoreContent = async () => {
       );
       return;
     }
-    
+
     renderImages(hits);
     simpleLightBox.refresh();
-
   } catch (error) {
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -68,7 +65,7 @@ const loadMoreContent = async () => {
   }
 };
 
-export default infiniteObserver = new IntersectionObserver(
+const infiniteObserver = new IntersectionObserver(
   ([entry], observer) => {
     if (entry.isIntersecting) {
       observer.unobserve(entry.target);
@@ -79,3 +76,4 @@ export default infiniteObserver = new IntersectionObserver(
     threshold: 1,
   }
 );
+export default infiniteObserver;
