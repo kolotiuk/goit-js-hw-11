@@ -1,5 +1,5 @@
 import refs from '../services/getRefs';
-import infiniteObserver from '../../index';
+import infiniteObserver from '../..';
 
 const renderImages = images => {
   const markup = images
